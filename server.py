@@ -15,13 +15,15 @@ def detect_emotions():
     text_to_analyze = request.args.get("textToAnalyze")
     # Análisis mediante API externa y presentación de resultados.
     response = emotion_detector(text_to_analyze)
+    if response['dominant_emotion'] is None:
+        return "Invalid text! Please try again!."
     return (
             "For the given statement, the system response is" +
-            f" \'anger\': {response['anger']}," +
-            f" \'disgust\': {response['disgust']}," +
-            f" \'fear\': {response['fear']}," +
-            f" \'joy\': {response['joy']} and" +
-            f" \'sadness\': {response['sadness']}." +
+            f" 'anger': {response['anger']}," +
+            f" 'disgust': {response['disgust']}," +
+            f" 'fear': {response['fear']}," +
+            f" 'joy': {response['joy']} and" +
+            f" 'sadness': {response['sadness']}." +
             f" The dominant emotion is {response['dominant_emotion']}."
     )
 

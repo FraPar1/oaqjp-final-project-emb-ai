@@ -16,22 +16,37 @@ HEADER = {"grpc-metadata-mm-model-id":(
 def emotion_detector(text_to_analyze):
     """Analizador por API externa.
      Recibe una cadena de texto y devuelve un diccionario"""
-    # Documento json con el texto
-    json_input = { "raw_document": { "text": text_to_analyze } }
-    # Análisis por API externa del texto
-    response = requests.post(url=API_URL,
-                             headers=HEADER,
-                             json=json_input,
-                             timeout= 15)
-    # Formateo de la respuesta
-    dict_response = json.loads(response.text)
-    emotions = dict_response["emotionPredictions"][0]["emotion"]
-    formatted_response = {
-        "anger": emotions["anger"],
-        "disgust": emotions["disgust"],
-        "fear": emotions["fear"],
-        "joy": emotions["joy"],
-        "sadness": emotions["sadness"],
-        "dominant_emotion": max(emotions, key=emotions.get)
-    }
+    try:
+        # Documento json con el texto
+        json_input = {"raw_document": { "text": text_to_analyze }}
+        # Análisis por API externa del texto
+        response = requests.post(
+                                 url=API_URL,
+                                 headers=HEADER,
+                                 json=json_input,
+                                 timeout=15
+                                 )
+        if response.status_code == 400:
+            raise ValueError("Bad Request (400).")
+        # Formateo de la respuesta
+        dict_response = json.loads(response.text)
+        emotions = dict_response["emotionPredictions"][0]["emotion"]
+        formatted_response = {
+            "anger": emotions["anger"],
+            "disgust": emotions["disgust"],
+            "fear": emotions["fear"],
+            "joy": emotions["joy"],
+            "sadness": emotions["sadness"],
+            "dominant_emotion": max(emotions, key=emotions.get)
+        }
+    except (ValueError, requests.exceptions.RequestException, KeyError):
+        formatted_response = {
+            "anger": None,
+            "disgust": None,
+            "fear": None,
+            "joy": None,
+            "sadness": None,
+            "dominant_emotion": None
+        }
+
     return formatted_response
